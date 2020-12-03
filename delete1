@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Oct  2 14:59:42 2020
+
+@author: samarth
+"""
+
+
+def sum_up(a,b):
+    a=a+b
+    b=9
+    
+    
+c=2
+d=3
+sum_up(c,d)
