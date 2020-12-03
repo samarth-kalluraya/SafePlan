@@ -1,7 +1,4 @@
 # TL-RRT*
-
-change
-
 Tasks specified by Linear Temporal Logic can capture more complex missions compared to traditional point-to-point navigation.
 The majority of existing Linear Temporal Logic (LTL) planning methods rely on the construction of a discrete product 
 automaton, that combines a discrete abstraction of robot mobility and a Büchi automaton that captures the LTL specification
@@ -22,26 +19,34 @@ states.
 * [scipy](https://www.scipy.org)
 * [matplotlib](https://matplotlib.org)
 * [termcolor](https://pypi.org/project/termcolor/)
+* [visilibity](https://github.com/tsaoyu/PyVisiLibity)
 
 # Usage
 ## Structures
 * Class [Task](task.py) defines the task specified in LTL
 * Class [Workspace](workspace.py) define the workspace where robots reside
+* Class [Landmark](workspace.py) define the landmarks in the workspace
 * Class [Buchi](buchi_parse.py) constructs the graph of NBA from LTL formula
+* Class [Geodesic](geodesic_path.py) constructs geodesic path for given environment
 * Class [BiasedTree](biased_tree.py) involves the initialization of the tree and relevant operations
 * Function [construction_biased_tree](construct_biased_tree.py) incrementally grow the tree
 * Script [biased_TLRRT_star.py](biased_TLRRT_star.py) contains the main function
 * Functions [path_plot](draw_picture.py) and [path_print](draw_picture.py) draw and print the paths, respectively
+* Functions [export_disc_to_txt](draw_picture.py) and [export_cov_to_txt](draw_picture.py) export discretized waypoints and covariance at waypoints, respectively
+* Functions [kf_update](kf.py) and [ekf_update](ekf.py) update position and cavariance using kalman filter and extended kalman filter respectively
+
 ## Basic procedure
-* First, specify the LTL task in the class [Task](task.py), which mainly involves the assigned task, the number of robots
-, the initial locations of robots and the minimum distance between any pair of robots, and workspace in the class [Workspace](/workspace.py) that contains the information about the size of the workspace, the layout of regions and obstacles. 
-* Second, set the parameters used in the TL-RRT* in the script [construct_biased_tree.py](/construct_biased_tree.py), such as the maximum number of iterations, the step size, whether the lite version in [biased_tree.py](/biased_tree.py) is used that does not use functions `near`, `extend` and `rewire`. 
+* First, in the class [Workspace](/workspace.py) specify the size of the workspace, the layout of landmarks and obstacles, and the covariance associated with each landmark. Also specify the number of classes and the class distribution.
+* Then, specify the LTL task in the class [Task](task.py), which mainly involves the assigned task, the number of robots, the initial locations of robots and the minimum distance between any pair of robots, and workspace in the class [Workspace](/workspace.py) that contains the information about the size of the workspace, the layout of regions and obstacles. If manual initiation is set to False, then the robots will be initated at random locations. 
+* Set the parameters used in the TL-RRT* in the script [biased_tree.py](/biased_tree.py), such as the maximum number of iterations, the step size, sensor range, sensor noise. 
+* If the output will be used by the simulation, the specify location of folder where the waypoints should be saved.
+* Run [biased_TLRRT_star.py](/biased_TLRRT_star.py) to generate the solution.
 * Finally, after the TL-RRT* terminates, the runtime and the cost of the solution are presented. What's more, the path composed of prefix and suffix parts for each robot is drawn with workspace layout when the number of robots is relatively small, otherwise, the path for each robot is printed onto the screen when the number of robots is large. 
 
 # Example
 
 ## Workspace
-The workspace of size `1-by-1` is shown below, with `l_1`-`l_6` being regions and `o_1`-`o_2` being obstacles
+The workspace of size `150 x 150` is shown below, with `l_1`-`l_13` being regions and `o_1`-`o_3` being obstacles
 <p align="center">
 <img src="img/workspace.png"  width="750" height="500">
 </p>
@@ -51,7 +56,7 @@ For all the following test cases, the same set of parameters are used.
 ```python
 # parameters
 # maximum number of iterations
-n_max = 10000
+n_max = 100000
 para = dict()
 # lite version, excluding extending and rewiring
 para['is_lite'] = True
@@ -62,7 +67,13 @@ para['p_closest'] = 0.9
 # probability used when deciding the target point 
 para['y_rand'] = 0.99
 # minimum distance between any pair of robots  
-para['threshold'] = 0.005
+para['threshold'] = 1
+# Updates landmark covariance when inside sensor range
+para['update_covariance'] = True
+# sensor range in meters
+para['sensor_range'] = 10
+# sensor measurement noise
+para['sensor_R'] = 0.5
 ```
 Furthermore, the construction of the tree terminates once an accepting node is detected, which is controlled in [construct_biased_tree.py](construct_biased_tree.py) by line
 ```python
@@ -71,78 +82,50 @@ if len(tree.goals): break
 ### Case 1
 The task involving one robot is specified by 
 ```python
-self.formula = '<> e1 && []<> (e2 && <> e3) && (!e3 U e4) && []!e5'
-self.subformula = { 1: '(l1_1)',
-                    2: '(l2_1)',
-                    3: '(l3_1)',
-                    4: '(l4_1)',
-                    5: '(l5_1)',
-                    }     
-self.init = ((0.8, 0.1), )  # in the form of ((x,y), (x,y), ...)    
+self.formula = '<> e1  && <> ( e2 && <> e3) && !e4 U e1' 
+self.subformula = {2: ['(l11_1)',0,0.8,1.5, 0],
+                    3: ['(l9_1)',0,0.8,1.5, 0], 
+                    1: ['(l13_1)',0,0.8,3, 0], 
+                    4: ['(l11_1)',0,0.8,5, 0]
+                    }
+robot_initial_pos = ((25,80),)  # in the form of ((x,y), (x,y), ...)    
 ```
 The output results during execution are
 ```
-Time for constructing the NBA: 0.1343 s
------------------------------- prefix path --------------------------------
-Time for the prefix path: 0.0516 s
-1 accepting goals found
--------------- suffix path for 1-th pre-goal (of 1 in total) --------------
-1-th pre-goals: 1 accepting goals found
-Time for the suffix path: 0.0561 s
------------------------- prefix + suffix path -----------------------------
-t_pre  | t_suf  | t_total | cost
-0.0516 | 0.0561 | 0.2421  | 1.7245
-------------------------- print the path path -----------------------------
-(. for empty label, || ... || for the suffix path)
-robot 1 :  . -->  . -->  . -->  . -->  . -->  . -->  . --> l4 --> l1 -->  . -->  . --> l2 --> l2 --> || l2 --> l3 --> l3 -->  . --> l2 --> l2 --> l2 --> || 
+Time for the prefix path: 0.0066 min
+Cost of path: 228.00000000000003
 ```
+
 ### Case 2
 The task involving two robots is specified by 
 ```python
-self.formula = '[]<> e1 && []<> e3 && !e1 U e2'
-self.subformula = { 1: '(l1_1)',
-                    2: '(l6_1)',
-                    3: '(l5_2)'
+self.formula = '<> e1  && <> e2 && <> e3 && !e2 U e1' 
+self.subformula = {1: ['(l1_1)',0,0.8,1.5, 0],
+                    2: ['(l6_2)',0,0.8,1.5, 0], 
+                    3: ['(l2_1 && l10_2)',0,0.8,3, 0], 
+                    4: ['(l11_1)',0,0.8,5, 0]
                     }
-self.init = ((0.8, 0.1), (0.8, 0.1))  # in the form of ((x,y), (x,y), ...)    
+robot_initial_pos = ((25,80),(10,8)  # in the form of ((x,y), (x,y), ...)    
 ```
 The output results during execution are
 ```
-Time for constructing the NBA: 0.0225 s
------------------------------- prefix path --------------------------------
-Time for the prefix path: 0.1162 s
-1 accepting goals found
--------------- suffix path for 1-th pre-goal (of 1 in total) --------------
-1-th pre-goals: 1 accepting goals found
-Time for the suffix path: 0.0273 s
------------------------- prefix + suffix path -----------------------------
-t_pre  | t_suf  | t_total | cost
-0.1162 | 0.0273 | 0.1660  | 0.8407
-------------------------- print the path path -----------------------------
-(. for empty label, || ... || for the suffix path)
-robot 1 :  . -->  . -->  . --> l4 --> l6 -->  . -->  . -->  . --> l1 --> l1 --> || l1 --> || 
-robot 2 :  . -->  . -->  . -->  . -->  . -->  . -->  . -->  . --> l5 --> l5 --> || l5 --> ||
-```
-### Case 3
-The task involving `8*num_of_robot_in_one_group` robots is specified by 
-```python
-self.formula = '[]<> e1 && []<> e2 && []<> e3 && []<>(e4 && <>(e5 && <> e6)) && <> e7 && []<>e8 && (!e7 U e8)'
-```
-where each subformula is randomly generated, so is the initial location of each robot. It took less time when the following code in [buchi_parse.py](buchi_parse.py) is uncommented.
-```python
-if ' && ' in symbol: continue
+Time for the prefix path: 0.0995 min
+Cost of path: 229.45128947213922
 ```
 
-The output results for `num_of_robot_in_one_group = 3` are as follows. We didn't present the paths due to large number of robots.
+### Case 3
+The task involving five robots is specified by 
+```python
+self.formula = '<>e1 && <> ( e2 && <> e3) && []!e4'
+self.subformula = {1: ['(l1_1 && l3_2 && l7_4 && l10_5)',0,    0.7,    1.5, 0],
+                    2: ['(l9_1 && l11_2 && l8_3)',  0,    0.7,    1.5,  0],
+                    3: ['(l8_1 && l7_2 && l2_3 && l5_4 && l12_5)', 0,    0.7,   1.5,  0],
+                    4: ['(l13_1 || l13_2 || l13_3 || l13_4 || l13_5)', 0,    0.7,    5,  0]
+                    }
+robot_initial_pos = ((25,80),(10,8),(15,8),(20,8),(25,8))
 ```
-Time for constructing the NBA: 1.8233 s
------------------------------- prefix path --------------------------------
-Time for the prefix path: 2.9102 s
-1 accepting goals found
--------------- suffix path for 1-th pre-goal (of 1 in total) --------------
-1-th pre-goals: 1 accepting goals found
-Time for the suffix path: 2.4176 s
------------------------- prefix + suffix path -----------------------------
-t_pre  | t_suf  | t_total | cost
-2.9102 | 2.4176 | 7.1510  | 7.9073
+The output results during execution are
+```
+Time for the prefix path: 0.2149 min
+Cost of path: 535.7794199619735
 ```
