@@ -1,4 +1,7 @@
 # TL-RRT*
+
+change
+
 Tasks specified by Linear Temporal Logic can capture more complex missions compared to traditional point-to-point navigation.
 The majority of existing Linear Temporal Logic (LTL) planning methods rely on the construction of a discrete product 
 automaton, that combines a discrete abstraction of robot mobility and a Büchi automaton that captures the LTL specification
