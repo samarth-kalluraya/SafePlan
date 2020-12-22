@@ -136,8 +136,19 @@ def path_plot(path, workspace, lm, number_of_robots, round_num, identity):
         # prefix path
         x_pre = np.asarray([point[0][n][0] for point in path[0]])
         y_pre = np.asarray([point[0][n][1] for point in path[0]])
+        if n == 0:
+            col='r'
+        if n == 1:
+            col='g'
+        if n == 2:
+            col='b'
+        if n == 3:
+            col='m'
+        if n == 4:
+            col='k'
+        
         pre = plt.quiver(x_pre[:-1], y_pre[:-1], x_pre[1:] - x_pre[:-1], y_pre[1:] - y_pre[:-1],
-                         headlength=0, headaxislength=0, width=0.003, color='r',
+                         headlength=0, headaxislength=0, width=0.003, color=col,
                          scale_units='xy', angles='xy', scale=1, label='prefix path')
 
         # suffix path

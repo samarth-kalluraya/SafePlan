@@ -39,12 +39,12 @@ def sample_uniform_geometry(group):
     return reversed_group[uniform_geometry_cdf(n, cdf)-1]
 
 
-# g=['a','b']#,'c','d','e']
+# g=['a','b','c','d','e']
 # a=[]
 # for i in range(10000):
 #     a.append(sample_uniform_geometry(g))
 # print(a.count('a'))
 # print(a.count('b'))
-# # print(a.count('c'))
-# # print(a.count('d'))
-# # print(a.count('e'))
+# print(a.count('c'))
+# print(a.count('d'))
+# print(a.count('e'))

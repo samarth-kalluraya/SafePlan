@@ -385,20 +385,9 @@ class BiasedTree(object):
         if math.sqrt((lm_pos[1] - x[1])**2 + (lm_pos[0] - x[0])**2) < 10:
             dd = 3
         else:
-            dd=15
+            dd=10
         d = dd*tau
         angle =  np.arctan2(target[1] - x[1], target[0] - x[0])# + np.random.normal(0, np.pi/12/3/3, 1)
-        # u = np.array([0,45,-45,90,-90,135,-135,180,-180])*np.pi/180
-        # uu = u + orig_angle
-        # uu[uu>np.pi] = uu[uu>np.pi] - 2*np.pi
-        # uu[uu<-np.pi] = uu[uu<-np.pi] + 2*np.pi
-        # index = np.where(abs((uu-angle))==min(abs(uu-angle)))
-        # uu = tau*u[index[0][0]]+orig_angle
-        # angle = uu
-        # if angle>np.pi:
-        #     angle = angle - 2*np.pi
-        # elif angle <-np.pi:
-        #     angle = 2*np.pi + angle
         
         x_rand = np.add(x, np.append(d * np.cos(angle), d * np.sin(angle)))
         x_rand = [self.trunc(i, x_rand_i) for i, x_rand_i in enumerate(x_rand)]
