@@ -43,7 +43,7 @@ The goal of this planner is to complete collaborative high-level tasks captured 
 ## Workspace
 The workspace of size `150 x 150` is shown below, with `l_1`-`l_13` being regions and `o_1`-`o_3` being obstacles
 <p align="center">
-<img src="img/workspace.png"  width="750" height="500">
+<img src="img/workspace.png"  width="600" height="600">
 </p>
 
 ## Test Cases
@@ -90,6 +90,10 @@ The output results during execution are
 Time for the prefix path: 0.0066 min
 Cost of path: 228.00000000000003
 ```
+<p align="center">
+<img src="img/Case1_Output1.png"  width="250" height="250" title="Robot 1 path">
+</p>
+
 
 ### Case 2
 The task involving two robots is specified by 
@@ -106,7 +110,10 @@ The output results during execution are
 Time for the prefix path: 0.0995 min
 Cost of path: 229.45128947213922
 ```
-
+<p align="center">
+<img src="img/Case2_Output1.png"  width="250" height="250" title="Robot 1 path">
+<img src="img/Case2_Output2.png"  width="250" height="250" title="Robot 2 path">
+</p>
 ### Case 3
 The task involving five robots is specified by 
 ```python
@@ -123,3 +130,13 @@ The output results during execution are
 Time for the prefix path: 0.2149 min
 Cost of path: 535.7794199619735
 ```
+<p align="center">
+<img src="img/Case5_Output1.png"  width="250" height="250" title="Robot 1 path">
+<img src="img/Case5_Output2.png"  width="250" height="250" title="Robot 2 path">
+<img src="img/Case5_Output3.png"  width="250" height="250" title="Robot 3 path">
+</p>
+<p align="center">
+<img src="img/Case5_Output4.png"  width="250" height="250" title="Robot 4 path">
+<img src="img/Case5_Output5.png"  width="250" height="250" title="Robot 5 path">
+</p>
+
