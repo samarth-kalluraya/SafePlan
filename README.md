@@ -114,6 +114,8 @@ Cost of path: 229.45128947213922
 <img src="img/Case2_Output1.png"  width="250" height="250" title="Robot 1 path">
 <img src="img/Case2_Output2.png"  width="250" height="250" title="Robot 2 path">
 </p>
+
+
 ### Case 3
 The task involving five robots is specified by 
 ```python
