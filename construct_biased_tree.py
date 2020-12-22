@@ -15,7 +15,6 @@ def construction_biased_tree(tree, n_max):
     for n in range(n_max):
         if n%200 == 0:
             print("---------------------------------------------%d" %(n))
-            # print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                                              ---------------------------------------------%d" %(n))
         # biased sample
         x_new, x_angle, q_p_closest, label, target_b_state = tree.biased_sample()
         # couldn't find x_new
